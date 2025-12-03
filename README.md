@@ -7,7 +7,7 @@
 
 ## Requirements
 - **Must be installed on a fresh database.**
-- Python 3.9+
+- Python 3.11+
 - Django 5.1+
 - django-crispy-forms 2.4+
 - django-tables2 2.7+
@@ -19,7 +19,7 @@
 ## Features
 - Custom AbstractUser model
 - User permissions system  
-- Activity logging (login/logout tracking)
+- Activity logging (login/logout, CRUD tracking)
 - Localization support
 - Admin interface integration
 - CRUD views and templates
@@ -58,9 +58,8 @@ urlpatterns = [
 ]
 ```
 
-4. make migrations and migrate:
+4. Run migrations:
 ```bash
-python manage.py makemigrations users
 python manage.py migrate users
 ```
 

@@ -10,6 +10,7 @@ from crispy_forms.bootstrap import FormActions
 from PIL import Image
 from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
+from django.db.models import Q
 
 User = get_user_model()
 
@@ -48,28 +49,15 @@ class CustomUserCreationForm(UserCreationForm):
 
         # Split permissions queryset into two parts for 2 columns
         permissions_list = list(Permissions.objects.exclude(
-            codename__in=[
-                'add_logentry', 'change_logentry', 'delete_logentry', 'view_logentry',
-                'add_theme', 'change_theme', 'delete_theme', 'view_theme',
-                'add_group', 'change_group', 'delete_group', 'view_group',
-                'add_permission', 'change_permission', 'delete_permission', 'view_permission',
-                'add_permissions', 'change_permissions', 'delete_permissions', 'view_permissions',
-                'add_contenttype', 'change_contenttype', 'delete_contenttype', 'view_contenttype',
-                'add_session', 'change_session', 'delete_session', 'view_session',
-                'add_government', 'delete_government', 'view_government',
-                'add_minister', 'delete_minister', 'view_minister',
-                'add_decreecategory', 'delete_decreecategory', 'view_decreecategory',
-                'add_periodictask', 'change_periodictask', 'delete_periodictask', 'view_periodictask',
-                'add_periodictasks', 'change_periodictasks', 'delete_periodictasks', 'view_periodictasks',
-                'add_clockedschedule', 'change_clockedschedule', 'delete_clockedschedule', 'view_clockedschedule',
-                'add_crontabschedule', 'change_crontabschedule', 'delete_crontabschedule', 'view_crontabschedule',
-                'add_intervalschedule', 'change_intervalschedule', 'delete_intervalschedule', 'view_intervalschedule',
-                'add_solarschedule', 'change_solarschedule', 'delete_solarschedule', 'view_solarschedule',
-                'add_customuser', 'change_customuser', 'delete_customuser', 'view_customuser',
-                'add_useractivitylog', 'change_useractivitylog', 'delete_useractivitylog', 'view_useractivitylog',
-                'download_doc', 'gen_pub_pdf', 'download_doc', 'delete_decree', 'delete_publication', 'delete_objection',
-                'delete_formplus', 'view_decree', 'view_formplus', 'gen_pub_pdf', 'view_publication',
-            ]
+            Q(codename__regex=r'^(delete_)') |
+            Q(content_type__app_label__in=[
+                'admin',
+                'auth',
+                'contenttypes',
+                'sessions',
+                'django_celery_beat',
+                'users'
+            ])
         ))
         mid_point = len(permissions_list) // 2
         permissions_right = permissions_list[:mid_point]
@@ -176,28 +164,15 @@ class CustomUserChangeForm(UserChangeForm):
         
         # Split permissions queryset into two parts for 2 columns
         permissions_list = list(Permissions.objects.exclude(
-            codename__in=[
-                'add_logentry', 'change_logentry', 'delete_logentry', 'view_logentry',
-                'add_theme', 'change_theme', 'delete_theme', 'view_theme',
-                'add_group', 'change_group', 'delete_group', 'view_group',
-                'add_permission', 'change_permission', 'delete_permission', 'view_permission',
-                'add_permissions', 'change_permissions', 'delete_permissions', 'view_permissions',
-                'add_contenttype', 'change_contenttype', 'delete_contenttype', 'view_contenttype',
-                'add_session', 'change_session', 'delete_session', 'view_session',
-                'add_government', 'delete_government', 'view_government',
-                'add_minister', 'delete_minister', 'view_minister',
-                'add_decreecategory', 'delete_decreecategory', 'view_decreecategory',
-                'add_periodictask', 'change_periodictask', 'delete_periodictask', 'view_periodictask',
-                'add_periodictasks', 'change_periodictasks', 'delete_periodictasks', 'view_periodictasks',
-                'add_clockedschedule', 'change_clockedschedule', 'delete_clockedschedule', 'view_clockedschedule',
-                'add_crontabschedule', 'change_crontabschedule', 'delete_crontabschedule', 'view_crontabschedule',
-                'add_intervalschedule', 'change_intervalschedule', 'delete_intervalschedule', 'view_intervalschedule',
-                'add_solarschedule', 'change_solarschedule', 'delete_solarschedule', 'view_solarschedule',
-                'add_customuser', 'change_customuser', 'delete_customuser', 'view_customuser',
-                'add_useractivitylog', 'change_useractivitylog', 'delete_useractivitylog', 'view_useractivitylog',
-                'download_doc', 'gen_pub_pdf', 'download_doc', 'delete_decree', 'delete_publication', 'delete_objection',
-                'delete_formplus', 'view_decree', 'view_formplus', 'gen_pub_pdf', 'view_publication',
-            ]
+            Q(codename__regex=r'^(delete_)') |
+            Q(content_type__app_label__in=[
+                'admin',
+                'auth',
+                'contenttypes',
+                'sessions',
+                'django_celery_beat',
+                'users'
+            ])
         ))
         mid_point = len(permissions_list) // 2
         self.permissions_right = permissions_list[:mid_point]

@@ -5,7 +5,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setup(
     name="micro_users",
-    version="1.0.3",
+    version="1.1.0",
     author="DeBeski",
     author_email="debeski1@gmail.com",
     description="Arabic django user management app with abstract user, permissions, and activity logging",
@@ -23,6 +23,8 @@ setup(
         "Programming Language :: Python :: 3.10",
         "Programming Language :: Python :: 3.11",
         "Programming Language :: Python :: 3.12",
+        "Programming Language :: Python :: 3.13",
+        "Programming Language :: Python :: 3.14",
         "License :: OSI Approved :: MIT License",
         "Operating System :: OS Independent",
     ],
