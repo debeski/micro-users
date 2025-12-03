@@ -5,7 +5,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setup(
     name="micro_users",
-    version="1.0.0",
+    version="1.0.1",
     author="DeBeski",
     author_email="debeski1@gmail.com",
     description="Django user management app with abstract user, permissions, and activity logging",

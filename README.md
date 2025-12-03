@@ -68,4 +68,3 @@ users/
 ├── templates/     # HTML templates
 └── migrations/    # Database migrations
 ```
-```
