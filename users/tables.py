@@ -38,3 +38,9 @@ class UserActivityLogTable(tables.Table):
         template_name = "django_tables2/bootstrap5.html"
         fields = ("timestamp", "user", "user.full_name", "action", "model_name", "object_id", "number")
         attrs = {'class': 'table table-hover align-middle'}
+
+class UserActivityLogTableNoUser(UserActivityLogTable):
+    class Meta(UserActivityLogTable.Meta):
+        # Remove the 'user' and 'user.full_name' columns
+        exclude = ("user", "user.full_name")
+

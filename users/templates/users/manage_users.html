@@ -65,7 +65,7 @@
 
                 // Update the modal content
                 document.getElementById("userName").textContent = userName;
-                form.action = `/manage/users/delete/${userId}/`; // Update form action with user ID
+                form.action = "{% url 'delete_user' 0 %}".replace("/0/", `/${userId}/`);
             });
         });
     </script>

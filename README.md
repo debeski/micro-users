@@ -85,4 +85,5 @@ users/
 | v1.0.4   | Honestly still messing with and trying settings and stuff out |
 | v1.1.0   | OK, finally a working seamless micro-users app |
 | v1.1.1   | Fixed a bug where a staff member can edit the admin details |
-| v1.
+| v1.2.0   | Added User Details view with specific user activity log |
+| v

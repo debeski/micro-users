@@ -7,14 +7,14 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.http import JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
-from django_tables2 import RequestConfig, SingleTableView
+from django_tables2 import RequestConfig, SingleTableView, DetailView
 from django_filters.views import FilterView
 
 # Project imports
 #################
 
 from .signals import get_client_ip
-from .tables import UserTable, UserActivityLogTable
+from .tables import UserTable, UserActivityLogTable, UserActivityLogTableNoUser
 from .forms import CustomUserCreationForm, CustomUserChangeForm, ArabicPasswordChangeForm, ResetPasswordForm, UserProfileEditForm
 from .filters import UserFilter, UserActivityLogFilter
 from .models import UserActivityLog
@@ -31,6 +31,7 @@ def is_staff(user):
 # Function to recognize superuser
 def is_superuser(user):
     return user.is_superuser 
+
 
 # Class Function for managing users
 class UserListView(LoginRequiredMixin, UserPassesTestMixin, FilterView, SingleTableView):
@@ -80,8 +81,8 @@ def create_user(request):
 
 # Function for editing an existing User
 @user_passes_test(is_staff)
-def edit_user(request, user_id):
-    user = get_object_or_404(User, id=user_id)
+def edit_user(request, pk):
+    user = get_object_or_404(User, pk=pk)
     form_reset = ResetPasswordForm(user, data=request.POST or None)
 
     if request.method == "POST":
@@ -101,8 +102,8 @@ def edit_user(request, user_id):
 
 # Function for deleting a User
 @user_passes_test(is_superuser)
-def delete_user(request, user_id):
-    user = get_object_or_404(User, id=user_id)
+def delete_user(request, pk):
+    user = get_object_or_404(User, pk=pk)
     if request.method == "POST":
         user.delete()
         UserActivityLog.objects.create(
@@ -139,10 +140,35 @@ class UserActivityLogView(LoginRequiredMixin, UserPassesTestMixin, SingleTableVi
         return context
 
 
+class UserDetailView(LoginRequiredMixin, UserPassesTestMixin, DetailView, SingleTableView):
+    model = User
+    template_name = "users/user_detail.html"
+    context_object_name = "detail_user"  # Keep clear naming
+    table_class = UserActivityLogTableNoUser
+    paginate_by = 10
+
+    def test_func(self):
+        # only staff can view user detail page
+        return self.request.user.is_staff
+
+    def get_queryset(self):
+        # This is for the DetailView (only target user)
+        return User.objects.all()
+
+    def get_table_data(self):
+        # filter log table to user in URL
+        return UserActivityLog.objects.filter(user=self.get_object()).order_by('-timestamp')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['table'] = self.get_table()  # table instance
+        return context
+
+
 # Function that resets a user password
 @user_passes_test(is_staff)
-def reset_password(request, user_id):
-    user = get_object_or_404(User, id=user_id)
+def reset_password(request, pk):
+    user = get_object_or_404(User, id=pk)
 
     if request.method == "POST":
         form = ResetPasswordForm(user=user, data=request.POST)  # ✅ Correct usage with SetPasswordForm
@@ -151,7 +177,7 @@ def reset_password(request, user_id):
             return redirect("manage_users")  # Redirect after successful reset
         else:
             print("Form errors:", form.errors)  # Debugging
-            return redirect("edit_user", user_id=user_id)  # Redirect to edit user on failure
+            return redirect("edit_user", pk=pk)  # Redirect to edit user on failure
     
     return redirect("manage_users")  # Fallback redirect
 
