@@ -9,20 +9,20 @@
                     <i class="bi bi-person-lines-fill text-dark me-1 h5"> </i> عرض
                 </a>
             </li> {% endcomment %}
+            {% if not record.is_superuser %}
             <li>
                 <a class="dropdown-item" href="{% url 'edit_user' record.id %}" title="تعديل">
                     <i class="bi bi-person-dash-fill text-dark me-1 h5"> </i> تعديل
                 </a>
             </li>
-            {% if user.is_superuser %}
-                {% if not record.is_staff %}
+            {% endif %}
+            {% if user.is_superuser and not record.is_staff %}
             <li>
                 <a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#deleteModal"
                 data-user-id="{{ record.id }}" data-user-name="{{ record.username }}">
                 <i class="bi bi-x-octagon text-danger me-1 h5"> </i> حذف
                 </a>
             </li>
-                {% endif %}
             {% endif %}
         </ul>
     </div>
