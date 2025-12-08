@@ -10,6 +10,8 @@ class UserTable(tables.Table):
     username = tables.Column(verbose_name="اسم المستخدم")
     email = tables.Column(verbose_name="البريد الالكتروني")
     full_name = tables.Column(verbose_name="الاسم بالكامل", orderable=False,)
+    is_staff = tables.BooleanColumn(verbose_name="مسؤول")
+    is_active = tables.BooleanColumn(verbose_name="نشط")
     last_login = tables.DateColumn(
         format="H:i Y-m-d ",  # This is the format you want for the timestamp
         verbose_name="اخر دخول"
@@ -33,10 +35,15 @@ class UserActivityLogTable(tables.Table):
         format="H:i Y-m-d ",  # This is the format you want for the timestamp
         verbose_name="وقت العملية"
     )
+    full_name = tables.Column(
+        verbose_name="الاسم بالكامل",
+        accessor='user.full_name',
+        order_by='user__first_name'
+    )
     class Meta:
         model = UserActivityLog
         template_name = "django_tables2/bootstrap5.html"
-        fields = ("timestamp", "user", "user.full_name", "action", "model_name", "object_id", "number")
+        fields = ("timestamp", "user", "full_name", "action", "model_name", "object_id", "number")
         attrs = {'class': 'table table-hover align-middle'}
 
 class UserActivityLogTableNoUser(UserActivityLogTable):

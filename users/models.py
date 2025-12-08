@@ -25,6 +25,7 @@ class UserActivityLog(models.Model):
         ('DOWNLOAD', 'تحميل'),
         ('CONFIRM', 'تأكيـد'),
         ('REJECT', 'رفــض'),
+        ('RESET', 'اعادة ضبط'),
     ]
 
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, verbose_name="اسم المستخدم", null=True, blank=True)

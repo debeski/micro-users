@@ -14,11 +14,9 @@ class UserFilter(django_filters.FilterSet):
         method='filter_keyword',
         label='',
     )
-
     class Meta:
         model = User
         fields = []
-
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.form.helper = FormHelper()
@@ -33,7 +31,6 @@ class UserFilter(django_filters.FilterSet):
                 css_class='form-row'
             ),
         )
-
     def filter_keyword(self, queryset, name, value):
         """
         Filter the queryset by matching the keyword in username, email, phone, and occupation.
@@ -48,37 +45,31 @@ class UserFilter(django_filters.FilterSet):
         )
 
 
-
 class UserActivityLogFilter(django_filters.FilterSet):
     keyword = django_filters.CharFilter(
         method='filter_keyword',
         label='',
     )
-
     year = django_filters.ChoiceFilter(
         field_name="timestamp__year",
         lookup_expr="exact",
         choices=[],
         empty_label="السنة",
     )
-
     class Meta:
         model = UserActivityLog
         fields = {
             'timestamp': ['gte', 'lte'],
         }
-
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         
         # Fetch distinct years dynamically
         years = UserActivityLog.objects.dates('timestamp', 'year').distinct()
         self.filters['year'].extra['choices'] = [(year.year, year.year) for year in years]
-
         self.filters['year'].field.widget.attrs.update({
             'onchange': 'this.form.submit();'
         })
-
         self.form.helper = FormHelper()
         self.form.helper.form_method = 'GET'
         self.form.helper.form_class = 'form-inline'
@@ -100,7 +91,6 @@ class UserActivityLogFilter(django_filters.FilterSet):
                 css_class='form-row'
             ),
         )
-
     def filter_keyword(self, queryset, name, value):
         """
         Filter the queryset by matching the keyword in username, email, phone, and occupation.
@@ -115,6 +105,4 @@ class UserActivityLogFilter(django_filters.FilterSet):
             Q(number__icontains=value) |
             Q(ip_address__icontains=value)
         )
-
-
 

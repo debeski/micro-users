@@ -68,12 +68,19 @@ python manage.py migrate users
 ## Structure
 ```
 users/
-├── models.py      # User model, permissions, activity logs
-├── views.py       # CRUD operations
-├── urls.py        # URL routing
-├── admin.py       # Admin integration
-├── templates/     # HTML templates
-└── migrations/    # Database migrations
+├── views.py        # CRUD operations
+├── urls.py         # URL routing
+├── tables.py       # User and Activity Log tables
+├── signals.py      # Logging signals
+├── models.py       # User model, permissions, activity logs
+├── forms.py        # Creation, edit,. etc.
+├── filter.py       # Search filters
+├── apps.py         # Permissions Localization
+├── admin.py        # Admin UI integration
+├── __init__.py     # Python init
+├── templates/      # HTML templates
+├── static/         # CSS classes
+└── migrations/     # Database migrations
 ```
 
 ## Version History
@@ -91,3 +98,4 @@ users/
 | v1.2.1   | • Fixed a minor import bug |
 | v1.2.3   | • Separated user detail view from table for consistency<br> • Optimized the new detail + log view for optimal compatibiliyy with users |
 | v1.2.4   | • Fixed a couple of visual inconsistencies |
+| v1.3.0   | • Patched a critical security permission issue<br> • Disabled ADMIN from being viewed/edited from other staff members<br> • Fixed an issue when sorting with full_name<br> • Enabled Logging for all actions |

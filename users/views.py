@@ -10,6 +10,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django_tables2 import RequestConfig, SingleTableView
 from django_filters.views import FilterView
 from django.views.generic.detail import DetailView
+from django.apps import apps
 
 # Project imports
 #################
@@ -21,6 +22,19 @@ from .filters import UserFilter, UserActivityLogFilter
 from .models import UserActivityLog
 
 User = get_user_model() # Use custom user model
+
+# Helper Function to log actions
+def log_user_action(request, instance, action, model_name):
+    UserActivityLog.objects.create(
+        user=request.user,
+        action=action,
+        model_name=model_name,
+        object_id=instance.pk,
+        number=instance.number if hasattr(instance, 'number') else '',
+        timestamp=timezone.now(),
+        ip_address=get_client_ip(request),
+        user_agent=request.META.get("HTTP_USER_AGENT", ""),
+    )
 
 #####################################################################
 
@@ -48,7 +62,9 @@ class UserListView(LoginRequiredMixin, UserPassesTestMixin, FilterView, SingleTa
     def get_queryset(self):
         # Apply the filter and order by any logic you need
         qs = super().get_queryset().order_by('date_joined')
-        # Apply ordering here if needed, for example:
+        # Hide superuser entries from non-superusers
+        if not self.request.user.is_superuser:
+            qs = qs.exclude(is_superuser=True)
         return qs
 
     def get_context_data(self, **kwargs):
@@ -66,11 +82,11 @@ class UserListView(LoginRequiredMixin, UserPassesTestMixin, FilterView, SingleTa
 # Function for creating a new User
 @user_passes_test(is_staff)
 def create_user(request):
-    
     if request.method == "POST":
         form = CustomUserCreationForm(request.POST or None)
         if form.is_valid():
-            form.save()
+            user = form.save()
+            log_user_action(request, user, "CREATE", "مستخدم")
             return redirect("manage_users")
         else:
             return render(request, "users/user_form.html", {"form": form})
@@ -89,7 +105,8 @@ def edit_user(request, pk):
     if request.method == "POST":
         form = CustomUserChangeForm(request.POST, instance=user)
         if form.is_valid():
-            form.save()
+            user = form.save()
+            log_user_action(request, user, "UPDATE", "مستخدم")
             return redirect("manage_users")
         else:
             # Validation errors will be automatically handled by the form object
@@ -106,17 +123,8 @@ def edit_user(request, pk):
 def delete_user(request, pk):
     user = get_object_or_404(User, pk=pk)
     if request.method == "POST":
+        log_user_action(request, user, "DELETE", "مستخدم")
         user.delete()
-        UserActivityLog.objects.create(
-            user=request.user,
-            action="DELETE",
-            model_name='مستخدم',
-            object_id=user.pk,
-            number=user.username,  # Save the relevant number
-            timestamp=timezone.now(),
-            ip_address=get_client_ip(request),  # Assuming you have this function
-            user_agent=request.META.get("HTTP_USER_AGENT", ""),
-        )
         return redirect("manage_users")
     return redirect("manage_users")  # Redirect instead of rendering a separate page
 
@@ -172,10 +180,11 @@ def reset_password(request, pk):
         form = ResetPasswordForm(user=user, data=request.POST)  # ✅ Correct usage with SetPasswordForm
         if form.is_valid():
             form.save()
-            return redirect("manage_users")  # Redirect after successful reset
+            log_user_action(request, user, "RESET", "رمز سري")
+            return redirect("manage_users")
         else:
-            print("Form errors:", form.errors)  # Debugging
-            return redirect("edit_user", pk=pk)  # Redirect to edit user on failure
+            print("Form errors:", form.errors)
+            return redirect("edit_user", pk=pk)
     
     return redirect("manage_users")  # Fallback redirect
 
@@ -189,6 +198,7 @@ def user_profile(request):
         password_form = ArabicPasswordChangeForm(user, request.POST)
         if password_form.is_valid():
             password_form.save()
+            log_user_action(request, user, "UPDATE", "رمز سري")
             update_session_auth_hash(request, password_form.user)  # Prevent user from being logged out
             messages.success(request, 'تم تغيير كلمة المرور بنجاح!')
             return redirect('user_profile')
@@ -206,10 +216,17 @@ def user_profile(request):
 # Function for editing the user profile
 @login_required
 def edit_profile(request):
+
+    # 🚫 Block staff users from editing superuser accounts
+    if request.user.is_superuser and not request.user.is_superuser:
+        messages.error(request, "لا يمكنك تعديل حساب المدير!")
+        return redirect('user_profile')
+
     if request.method == 'POST':
         form = UserProfileEditForm(request.POST, request.FILES, instance=request.user)
         if form.is_valid():
-            form.save()
+            user = form.save()
+            log_user_action(request, user, "UPDATE", "بيانات شخصية")
             messages.success(request, 'تم حفظ التغييرات بنجاح')
             return redirect('user_profile')
         else:
