@@ -100,6 +100,12 @@ def create_user(request):
 @user_passes_test(is_staff)
 def edit_user(request, pk):
     user = get_object_or_404(User, pk=pk)
+    
+    # 🚫 Block staff users from editing superuser accounts
+    if user.is_superuser and not request.user.is_superuser:
+        messages.error(request, "لا يمكن تعديل هذا الحساب!")
+        return redirect('manage_users')
+
     form_reset = ResetPasswordForm(user, data=request.POST or None)
 
     if request.method == "POST":
@@ -216,12 +222,6 @@ def user_profile(request):
 # Function for editing the user profile
 @login_required
 def edit_profile(request):
-
-    # 🚫 Block staff users from editing superuser accounts
-    if request.user.is_superuser and not request.user.is_superuser:
-        messages.error(request, "لا يمكنك تعديل حساب المدير!")
-        return redirect('user_profile')
-
     if request.method == 'POST':
         form = UserProfileEditForm(request.POST, request.FILES, instance=request.user)
         if form.is_valid():
@@ -231,9 +231,6 @@ def edit_profile(request):
             return redirect('user_profile')
         else:
             messages.error(request, 'حدث خطأ أثناء حفظ التغييرات')
-
     else:
         form = UserProfileEditForm(instance=request.user)
-
     return render(request, 'users/profile_edit.html', {'form': form})
-
