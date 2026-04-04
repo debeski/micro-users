@@ -2,6 +2,8 @@
 
 [![PyPI version](https://badge.fury.io/py/micro-users.svg)](https://pypi.org/project/micro-users/)
 
+`micro Users has been discontinued, and is instead now offered as an integral part of django-microSYS ui framework.`
+
 <p align="center">
   <img src="https://raw.githubusercontent.com/debeski/micro-users/main/users/static/img/login_logo.webp" alt="Micro Users Login Logo" width="450"/>
 </p>
