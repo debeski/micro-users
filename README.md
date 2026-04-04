@@ -60,12 +60,27 @@ MIDDLEWARE = [
 ]
 ```
 
-3. Set custom user model in `settings.py`:
+3. Add Context Processor in `settings.py` (Optional, for `scope_enabled` variable in templates):
+```python
+TEMPLATES = [
+    {
+        # ...
+        'OPTIONS': {
+            'context_processors': [
+                # ...
+                'users.context_processors.scope_settings', # Add this line
+            ],
+        },
+    },
+]
+```
+
+4. Set custom user model in `settings.py`:
 ```python
 AUTH_USER_MODEL = 'users.CustomUser'
 ```
 
-4. Include URLs in your main project folder `urls.py`:
+5. Include URLs in your main project folder `urls.py`:
 ```python
 urlpatterns = [
     ...
@@ -73,7 +88,7 @@ urlpatterns = [
 ]
 ```
 
-5. Run migrations:
+6. Run migrations:
 ```bash
 python manage.py migrate users
 ```
@@ -136,21 +151,6 @@ users/
 ### Replacing Login Logo
 To replace the default login logo, simply place your own `login_logo.webp` image in your project's static directory at `static/img/login_logo.webp`.
 
-### Theme Configuration
-You can configure the login page colors by defining `MICRO_USERS_THEME` in your project's `settings.py`. This dictionary overrides the default CSS variables.
-
-```python
-MICRO_USERS_THEME = {
-    'right_bg': '#474745',
-    'left_bg': 'white',
-    'selection_bg': '#dbdbdb',
-    'gradient_start': '#a2a2a7',
-    'gradient_end': '#474745',
-    # Additional keys supported:
-    # 'selection_moz_bg', 'left_shadow', 'right_shadow', 'right_text',
-    # 'label_color', 'input_text', 'submit_color', 'submit_focus', 'submit_active'
-}
-```
 
 ## Version History
 
@@ -176,3 +176,17 @@ MICRO_USERS_THEME = {
 | v1.6.0   | • **Automated Activity Logging**: dynamic logging for all CREATE/UPDATE/DELETE actions via Middleware & Signals<br> • **Refactor**: Renamed `Department` model to `Scope` (Scope Management)<br> • Removed manual logging requirement<br> • **Architecture**: Decoupled models, forms, and tables using dynamic imports and `apps.get_model` <br> • **Soft Delete**: Users are now marked as inactive with a timestamp instead of being permanently deleted<br> • **Activity Log**: Deleted users appear with a strikethrough<br> • **CSS Refactor**: Extracted and cleaned up styling with CSS variables<br> • **Login**: Refactored login page with separated JS/CSS and a new modern default logo |
 | v1.6.1   | • **Theme Configuration**: Added `MICRO_USERS_THEME` setting for easy color customization <br> • **Bug Fixes**: Explicitly excluded unwanted columns (id, ip_address, user_agent) from Activity Log table <br> • **UI**: Improved Scope Manager button visibility |
 | v1.6.2   | • **UI**: Improved some tooltips for buttons and descriptions |
+| v1.6.3   | • **Bug Fixes**: Fixed a crash with table tooltips "disabled" |
+| v1.7.0   | • **New Theme**: Complete visual overhaul with modern, consistent styling <br> • **Refactor**: Updated Login, Profile, and Detail templates for better UX <br> • **Feature**: Added Scope filter to Activity Logs (superuser only) <br> • **UX**: Clear button in filters now preserves current sort order |
+| v1.7.1   | • **Bug Fixes**: Fixed login/next url was not being passed correctly |
+| v1.8.0   | • **Permissions UI**: Complete redesign with App/Model-based grouping and hierarchical checkboxes<br>• **Aesthetics**: Applied modern glassmorphism theme to permission cards with interactive toggles<br>• **Security**: Implemented 3-level security logic (GM, SM, User) and "invisible" Superuser protection<br>• **Foolproofing**: Added self-editing protection for staff and scope enforcement for managers<br>• **Localization**: Fully translated system auth labels and metadata to Arabic |
+| v1.8.1   | • **UI Refinement**: Swapped `Email` and `Phone` positions across all forms, tables, and detail views<br>• **Field Logic**: Set `Email` and `Phone` as optional (not required) for all users<br>• **Security**: Added `manage_staff` custom permission to restrict `is_staff` management to authorized managers only<br>• **Bug Fix**: Reserved `manage_staff` assignment power strictly for Superusers and fixed UI grouping for custom permissions |
+| v1.8.2   | • **Login UX**: Enhanced login flow with auto-focus on username and improved "Enter to Submit" handling |
+| v1.8.3   | • **CSP Compliance**: Added `nonce` attribute support to all inline and external script tags (Login, Permissions, Manage Users) for Content Security Policy compliance |
+| v1.8.4   | • **Strict CSP**: Refactored inline JS event handlers to use Event Listeners, fully resolving CSP violation errors |
+| v1.8.5   | • **Optional Scopes**: Added ability for Superusers to toggle Scope system ON/OFF via User Management interface |
+| v1.8.6   | • **Strict CSP Repair**: Fixed remaining inline event handlers in User Management pages (`manage_users`, `scope_form`) that were violating CSP directives, moving all logic to external `manage_users.js` |
+| v1.8.7   | • Fixed a couple of template tab title mismatches |
+| v1.8.8   | • Fixed a couple of template content title mismatches and classes |
+| v1.8.9   | • Fixed migrations |
+| v1.9.0   | • **UI Overhaul**: Unified all buttons, and clssses to conform to themes, rounded corners, and improved spacing |
